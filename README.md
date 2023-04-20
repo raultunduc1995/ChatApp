@@ -1,2 +1,2 @@
 # ChatApp
-ChatApp - an app for you and your friends
+ChatApp - an app made for you and your friends
