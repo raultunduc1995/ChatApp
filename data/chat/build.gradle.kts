@@ -1,7 +1,5 @@
 plugins {
     id("core-lib-conventions")
-    id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -13,11 +11,10 @@ dependencies {
 
     // AndroidX
     implementation("androidx.core:core-ktx")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android")
 
     // Dependency injection
-    implementation("com.google.dagger:hilt-android")
-    implementation("androidx.core:core-ktx")
-    kapt("com.google.dagger:hilt-android-compiler")
+    implementation("io.insert-koin:koin-androidx-compose")
 
     // Testing
     testImplementation("junit:junit")

@@ -7,12 +7,6 @@
         <compositeConfiguration>
           <compositeBuild compositeDefinitionSource="SCRIPT">
             <builds>
-              <build path="$PROJECT_DIR$/gradle/plugins" name="plugins">
-                <projects>
-                  <project path="$PROJECT_DIR$/gradle/plugins" />
-                  <project path="$PROJECT_DIR$/gradle/plugins/build-logic" />
-                </projects>
-              </build>
               <build path="$PROJECT_DIR$/gradle/platform" name="platform">
                 <projects>
                   <project path="$PROJECT_DIR$/gradle/platform" />
@@ -29,6 +23,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/databases" />
             <option value="$PROJECT_DIR$/data" />
@@ -36,8 +31,6 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/chat" />
             <option value="$PROJECT_DIR$/gradle/platform" />
-            <option value="$PROJECT_DIR$/gradle/plugins" />
-            <option value="$PROJECT_DIR$/gradle/plugins/build-logic" />
           </set>
         </option>
       </GradleProjectSettings>

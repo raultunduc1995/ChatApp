@@ -1,7 +1,5 @@
 plugins {
     id("android-app-conventions")
-    id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -14,23 +12,23 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:databases"))
+    implementation(project(":data:chat"))
     implementation(project(":feature:chat"))
 
     // AndroidX
+    implementation("androidx.activity:activity-ktx")
     implementation("androidx.core:core-ktx")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx")
-    implementation("androidx.activity:activity-compose")
 
     // UI Toolkit
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.activity:activity-compose")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
 
     // Dependency injection
-    implementation("com.google.dagger:hilt-android")
-    implementation("androidx.core:core-ktx")
-    kapt("com.google.dagger:hilt-android-compiler")
+    implementation("io.insert-koin:koin-androidx-compose")
 
     // Navigation
     implementation("androidx.navigation:navigation-compose")

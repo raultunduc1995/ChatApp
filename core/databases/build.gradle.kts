@@ -1,7 +1,5 @@
 plugins {
     id("core-lib-conventions")
-    id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -13,12 +11,20 @@ dependencies {
     implementation("androidx.core:core-ktx")
 
     // Dependency injection
-    implementation("com.google.dagger:hilt-android")
-    implementation("androidx.core:core-ktx")
-    kapt("com.google.dagger:hilt-android-compiler")
+    implementation("io.insert-koin:koin-androidx-compose")
+
+    // Room
+    implementation("androidx.room:room-runtime")
+    kapt("androidx.room:room-compiler")
+    implementation("androidx.room:room-ktx")
 
     // Testing
     testImplementation("junit:junit")
     androidTestImplementation("androidx.test.ext:junit")
     androidTestImplementation("androidx.test.espresso:espresso-core")
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }

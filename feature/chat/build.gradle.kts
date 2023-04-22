@@ -1,7 +1,5 @@
 plugins {
     id("android-lib-conventions")
-    id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -16,17 +14,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx")
 
     // UI Toolkit
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
-    implementation("androidx.core:core-ktx")
+    implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Dependency injection
-    implementation("com.google.dagger:hilt-android")
-    kapt("com.google.dagger:hilt-android-compiler")
+    implementation("io.insert-koin:koin-androidx-compose")
 
     // Navigation
     implementation("androidx.navigation:navigation-compose")
@@ -35,5 +28,4 @@ dependencies {
     testImplementation("junit:junit")
     androidTestImplementation("androidx.test.ext:junit")
     androidTestImplementation("androidx.test.espresso:espresso-core")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }

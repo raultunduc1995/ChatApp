@@ -1,22 +1,17 @@
 plugins {
-    id("com.android.application")
+    id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    kotlin("kapt")
+    id("kotlin-kapt")
 }
 
 android {
     compileSdk = 33
     defaultConfig {
         minSdk = 28
-        targetSdk = 33
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
+        consumerProguardFiles("consumer-rules.pro")
     }
     buildTypes {
-        debug {
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
-        }
         release {
             isMinifyEnabled = false
             isShrinkResources = false
@@ -27,20 +22,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
-    buildFeatures.compose = true
-    composeOptions.kotlinCompilerExtensionVersion = "1.3.2"
-    packagingOptions.resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
 }
 
 dependencies {
     val platformBom = platform("com.chatapp.platform:platform")
-    implementation(platformBom)
-    androidTestImplementation(platformBom)
     kapt(platformBom)
+    implementation(platformBom)
+    annotationProcessor(platformBom)
+    androidTestImplementation(platformBom)
 }
 
 // Allow references to generated code
