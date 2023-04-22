@@ -16,7 +16,10 @@ val dataChatModule = module {
     }
     // Repositories
     single {
-        MessageRepository(messagesLocalDataSource = get())
+        MessageRepository(
+            userLocalDataSource = get(),
+            messagesLocalDataSource = get()
+        )
     }
     single {
         UserRepository(userLocalDataSource = get())

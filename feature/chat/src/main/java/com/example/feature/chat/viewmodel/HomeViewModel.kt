@@ -6,16 +6,17 @@ import com.example.data.chat.publ.model.User
 import com.example.data.chat.publ.repository.UserRepository
 import kotlinx.coroutines.launch
 
-class HomeViewModel(
-    private val userRepository: UserRepository
-) : ViewModel() {
+class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
     init {
         viewModelScope.launch {
-            userRepository.insertUserComplete(user = UserRepository.MAIN_USER)
-            userRepository.insertUserFriend(user = User(name = "Paul"))
-            userRepository.insertUserFriend(user = User(name = "Andrei"))
+            userRepository.insertUserComplete(user = User.MAIN_USER)
         }
     }
 
-    val userFriends = userRepository.getUserFriends(UserRepository.MAIN_USER)
+    val userFriends = userRepository.getUserFriends(User.MAIN_USER)
+
+    fun insertNewFriend(friendName: String) = viewModelScope.launch {
+        if (friendName.isEmpty()) return@launch
+        userRepository.insertUserFriend(User(name = friendName))
+    }
 }

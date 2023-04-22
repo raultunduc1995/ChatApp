@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.core.databases.model.UserDB
 import com.example.core.databases.model.UserUserCrossRefDB
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,7 @@ interface UserDBDao {
     @Query("""SELECT * FROM users""")
     fun getAll(): Flow<List<UserDB>>
 
+    @Transaction
     @Query(
         """
             SELECT users.userId, users.name FROM users
@@ -35,4 +37,12 @@ interface UserDBDao {
         """
     )
     suspend fun getUserById(userId: Long): UserDB
+
+    @Query(
+        """
+            SELECT * FROM users
+            WHERE userId = :userId
+        """
+    )
+    fun getUserByIdFlow(userId: Long): Flow<UserDB>
 }

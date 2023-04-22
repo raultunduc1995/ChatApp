@@ -7,6 +7,7 @@ group = "com.chatapp.platform"
 javaPlatform.allowDependencies()
 
 dependencies {
+    // UI Toolkit
     api(platform("androidx.compose:compose-bom:2022.10.00"))
 }
 dependencies.constraints {
@@ -18,6 +19,8 @@ dependencies.constraints {
 
     // UI Toolkit
     api("androidx.activity:activity-compose:1.6.1")
+
+    // Navigation
     api("androidx.navigation:navigation-compose:2.5.3")
 
     // Dependency injection

@@ -1,15 +1,20 @@
 package com.example.data.chat.publ.repository
 
-import com.example.core.databases.model.MessageDB
 import com.example.data.chat.localdatasource.MessagesLocalDataSource
+import com.example.data.chat.localdatasource.UserLocalDataSource
 import com.example.data.chat.publ.model.Message
-import com.example.data.chat.publ.model.User
+import com.example.data.chat.publ.utils.mapToMessage
+import com.example.data.chat.publ.utils.mapToMessageDB
+import com.example.data.chat.publ.utils.mapToUser
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.withContext
 
 class MessageRepository(
+    private val userLocalDataSource: UserLocalDataSource,
     private val messagesLocalDataSource: MessagesLocalDataSource,
     private val ioDispather: CoroutineDispatcher = Dispatchers.IO
 ) {
@@ -22,26 +27,19 @@ class MessageRepository(
         messagesLocalDataSource.insert(*messageDBs)
     }
 
-    fun getMessagesBetween(firstUser: User, secondUser: User) =
-        messagesLocalDataSource.getMessagesBetween(
-            firstUserId = firstUser.id,
-            secondUserId = secondUser.id
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getMessagesBetween(firstUserId: Long, secondUserId: Long): Flow<List<Message>> {
+        return messagesLocalDataSource.getMessagesBetween(
+            firstUserId = firstUserId,
+            secondUserId = secondUserId
         )
-            .map { messageDBs ->
-                messageDBs.map { it.mapToMessage(firstUser, secondUser) }
+            .mapLatest { mesageDBs ->
+                val firstUser = userLocalDataSource.getUserById(firstUserId).mapToUser()
+                val secondUser = userLocalDataSource.getUserById(secondUserId).mapToUser()
+                mesageDBs.map {
+                    it.mapToMessage(firstUser = firstUser, secondUser = secondUser)
+                }
             }
+    }
 }
 
-private fun Message.mapToMessageDB(): MessageDB =
-    MessageDB(
-        senderId = sender.id,
-        receiverId = receiver.id,
-        text = text
-    )
-
-private fun MessageDB.mapToMessage(firstUser: User, secondUser: User): Message =
-    Message(
-        sender = if (firstUser.id == senderId) firstUser else secondUser,
-        receiver = if (firstUser.id == receiverId) firstUser else secondUser,
-        text = text
-    )

@@ -30,4 +30,7 @@ class UserLocalDataSource(
 
     suspend fun getUserById(userId: Long): UserDB =
         userDBDao.getUserById(userId)
+
+    fun getUserByIdFlow(userId: Long): Flow<UserDB> =
+        userDBDao.getUserByIdFlow(userId).distinctUntilChanged()
 }
