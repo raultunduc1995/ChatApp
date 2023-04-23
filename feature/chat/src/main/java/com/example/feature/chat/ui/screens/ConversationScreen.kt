@@ -1,5 +1,12 @@
 package com.example.feature.chat.ui.screens
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,33 +37,36 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.data.chat.publ.model.LoadingMessage
 import com.example.data.chat.publ.model.Message
+import com.example.data.chat.publ.model.MessageTemplate
 import com.example.data.chat.publ.model.User
 import com.example.feature.chat.ui.components.CircleUserAvatar
 import com.example.feature.chat.ui.theme.ChatAppTheme
 import com.example.feature.chat.ui.utils.WhiteBackgroundPreview
 import com.example.feature.chat.viewmodel.ConversationViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun ConversationScreen(
     navController: NavController,
     viewModel: ConversationViewModel,
 ) {
-    val messages by viewModel.messages.collectAsState(initial = emptyList())
-    val receiver by viewModel.receiver.collectAsState(initial = User(name = ""))
+    val uiState by viewModel.uiState.collectAsState()
 
     Conversation(
-        messages = messages,
-        receiver = receiver,
+        messages = uiState.messages,
+        receiver = uiState.receiver,
         sendMessageTo = viewModel::sendMessageTo
     )
 }
@@ -65,7 +75,7 @@ fun ConversationScreen(
 @Composable
 fun Conversation(
     modifier: Modifier = Modifier,
-    messages: List<Message>,
+    messages: List<MessageTemplate>,
     receiver: User,
     sendMessageTo: (User, String) -> Unit
 ) {
@@ -128,20 +138,19 @@ fun Conversation(
 @Composable
 fun TextMessage(
     modifier: Modifier = Modifier,
-    message: Message
+    message: MessageTemplate
 ) {
     if (message.isMainUserTheSender()) {
         RightTextMessage(modifier = modifier, message = message)
     } else {
         LeftTextMessage(modifier = modifier, message = message)
     }
-
 }
 
 @Composable
 fun RightTextMessage(
     modifier: Modifier,
-    message: Message
+    message: MessageTemplate
 ) {
     Row(
         modifier = modifier
@@ -153,7 +162,7 @@ fun RightTextMessage(
             modifier = Modifier.weight(1f, fill = false),
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
             textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-            messageText = message.text
+            message = message
         )
         Spacer(modifier = Modifier.width(8.dp))
         CircleUserAvatar(
@@ -169,7 +178,7 @@ fun RightTextMessage(
 @Composable
 fun LeftTextMessage(
     modifier: Modifier,
-    message: Message
+    message: MessageTemplate
 ) {
     Row(
         modifier = modifier
@@ -189,7 +198,7 @@ fun LeftTextMessage(
             modifier = Modifier.weight(1f, fill = false),
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
             textColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            messageText = message.text
+            message = message
         )
     }
 }
@@ -197,10 +206,17 @@ fun LeftTextMessage(
 @Composable
 fun MessageContent(
     modifier: Modifier,
-    containerColor: Color,
-    textColor: Color,
-    messageText: String
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    message: MessageTemplate,
 ) {
+    val messageText = rememberSaveable(message) {
+        if (message is Message) {
+            message.text
+        } else {
+            ""
+        }
+    }
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
@@ -208,16 +224,58 @@ fun MessageContent(
         shadowElevation = 4.dp
     ) {
         Column(modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp)) {
-            Text(
-                text = messageText,
-                textAlign = TextAlign.Start,
-                color = textColor,
-                maxLines = Int.MAX_VALUE
-            )
+            if (message is LoadingMessage) {
+                MessageLoadingAnimation()
+            } else {
+                Text(
+                    text = messageText,
+                    textAlign = TextAlign.Start,
+                    color = textColor,
+                    maxLines = Int.MAX_VALUE
+                )
+            }
         }
     }
 }
 
+@Composable
+fun MessageLoadingAnimation(
+    circleColor: Color = Color.Black,
+    circleSize: Dp = 16.dp,
+    initialAlpha: Float = 0f
+) {
+    val circles = listOf(
+        remember { Animatable(initialValue = initialAlpha) },
+        remember { Animatable(initialValue = initialAlpha) },
+        remember { Animatable(initialValue = initialAlpha) }
+    )
+    circles.forEachIndexed { index, animatable ->
+        LaunchedEffect(Unit) {
+            animatable.animateTo(
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1_000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse,
+                    initialStartOffset = StartOffset(offsetMillis = 500 * index)
+                )
+            )
+        }
+    }
+
+    Row {
+        circles.forEach {
+            Canvas(
+                modifier = Modifier
+                    .size(circleSize)
+                    .padding(horizontal = 4.dp)
+                    .alpha(it.value),
+                onDraw = {
+                    drawCircle(circleColor)
+                }
+            )
+        }
+    }
+}
 
 @WhiteBackgroundPreview
 @Composable
@@ -248,8 +306,12 @@ fun ConversationPreview() {
         Message(
             sender = firstUser,
             receiver = secondUser,
-            text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas maximus accumsan neque, pellentesque consectetur sem pellentesque eu. Nunc a hendrerit mi, eget sollicitudin nibh. In porttitor lacus sed augue pretium rutrum. "
+            text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas maximus accumsan neque, pellentesque consectetur sem pellentesque eu. Nunc a hendrerit mi, eget sollicitudin nibh. In porttitor lacus sed augue pretium rutrum."
         ),
+        LoadingMessage(
+            sender = secondUser,
+            receiver = firstUser
+        )
     )
 
     ChatAppTheme {
